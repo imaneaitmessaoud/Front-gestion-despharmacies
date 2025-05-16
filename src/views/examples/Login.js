@@ -37,8 +37,9 @@ const Login = () => {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("email", credentials.email);
+      localStorage.setItem("id", response.data.id);
 
-      // 🔐 Mise à jour du contexte utilisateur
+      //  Mise à jour du contexte utilisateur
       setUser({ email: credentials.email, token: accessToken });
 
       alert("Connexion réussie !");

@@ -78,7 +78,7 @@ var routes = [
     layout: "/admin",
   },
   {
-  path: "/ventes/modifier",
+  path: "/ventes/modifier/{id}",
   name: "Modifier Vente",
   component: <ModifierVente />,
   layout: "/admin"

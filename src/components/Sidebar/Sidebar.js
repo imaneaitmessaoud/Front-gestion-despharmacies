@@ -80,6 +80,9 @@ const Sidebar = (props) => {
 
   const createLinks = (routes) => {
     return routes.map((prop, key) => {
+      if (prop.name === "Login" || prop.name === "Register") {
+        return null;
+      }
       return (
         <NavItem key={key}>
           <NavLink

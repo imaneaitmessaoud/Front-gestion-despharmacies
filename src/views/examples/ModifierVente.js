@@ -43,6 +43,7 @@ const ModifierVente = () => {
         setLignes(lignesConverties);
 
         const utilisateursRes = await api.get("/utilisateurs");
+        console.log("Utilisateurs:", utilisateursRes.data);
         setUtilisateurs(utilisateursRes.data);
       } catch (error) {
         console.error("Erreur de chargement :", error);

@@ -36,7 +36,7 @@ const Alertes = () => {
     try {
       await api.put(`/alertes/${id}/lue`);
       fetchAlertes();
-      toast.info("Alerte marquée comme lue.");
+      toast.info("Alerte marquée comme lue.");     
     } catch (err) {
       toast.error("Erreur lors de la mise à jour.");
     }
