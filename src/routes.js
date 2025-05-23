@@ -17,7 +17,6 @@
 */
 import Index from "views/Index.js";
 import Profile from "views/examples/Profile.js";
-//import Maps from "views/examples/Maps.js";
 import Register from "views/examples/Register.js";
 import Login from "views/examples/Login.js";
 import Medicaments from "views/examples/Medicaments.js";
@@ -26,6 +25,10 @@ import Ventes from "views/examples/Ventes.js";
 import AjouterVente from "views/examples/AjouterVente.js"; 
 import ModifierVente from "views/examples/ModifierVente.js";
 import Categories from "views/examples/Categories.js"; 
+import ListeUtilisateurs from "views/examples/ListeUtilisateurs.js";
+import ModifierUtilisateur from "views/examples/ModifierUtilisateur.js"; 
+
+
 var routes = [
   {
     path: "/index",
@@ -34,14 +37,6 @@ var routes = [
     component: <Index />,
     layout: "/admin",
   },
-  /*
-  {
-    path: "/maps",
-    name: "Maps",
-    icon: "ni ni-pin-3 text-orange",
-    component: <Maps />,
-    layout: "/admin",
-  },*/
   {
     path: "/user-profile",
     name: "User Profile",
@@ -78,8 +73,9 @@ var routes = [
     layout: "/admin",
   },
   {
-  path: "/ventes/modifier/{id}",
+  path: "/ventes/modifier/:id", //  utiliser :id 
   name: "Modifier Vente",
+  icon: "ni ni-settings",
   component: <ModifierVente />,
   layout: "/admin"
 },
@@ -91,20 +87,34 @@ var routes = [
   layout: "/admin"
 },
 
-  {
-    path: "/login",
-    name: "Login",
-    icon: "ni ni-key-25 text-info",
-    component: <Login />,
-    layout: "/auth",
-  },
-  {
-    path: "/register",
-    name: "Register",
+{
+  path: "/login",
+  name: "Login",
+  icon: "ni ni-key-25 text-info",
+  component: <Login />,
+  layout: "/auth",
+},
+{
+  path: "/register",
+  name: "Register",
     icon: "ni ni-circle-08 text-pink",
     component: <Register />,
     layout: "/auth",
   },
-  
+  {
+  path: "/utilisateurs",
+  name: "Utilisateurs",
+  icon: "ni ni-single-02 text-info",
+  component: <ListeUtilisateurs />,
+  layout: "/admin", 
+},
+
+{
+  path: "/utilisateurs/modifier/:id",
+  name: "Modifier Utilisateur",
+  icon: "fa fa-user-edit",
+  component: <ModifierUtilisateur />,
+  layout: "/admin",
+}
 ];
 export default routes;

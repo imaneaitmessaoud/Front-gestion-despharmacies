@@ -6,9 +6,12 @@ import api from "../../api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
 
 const Ventes = () => {
   const [ventes, setVentes] = useState([]);
+  const navigate = useNavigate();
 
   const fetchVentes = async () => {
     try {
@@ -86,6 +89,14 @@ const Ventes = () => {
                       <td>{v.quantiteVendue}</td>
                       <td>{v.utilisateurEmail || "-"}</td>
                       <td>
+                        <Button
+    color="primary"
+    size="sm"
+    className="me-2"
+    onClick={() => navigate(`/admin/ventes/modifier/${v.id}`)}
+  >
+    ✏️ Modifier
+  </Button>
                         <Button
                           color="danger"
                           size="sm"

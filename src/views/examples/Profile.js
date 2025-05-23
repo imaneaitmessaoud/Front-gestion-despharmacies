@@ -54,20 +54,33 @@ const Profile = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (formData.motDePasse !== formData.confirmPassword) {
-      return toast.error("Les mots de passe ne correspondent pas");
+  e.preventDefault();
+
+  try {
+    // Étape 1 : mettre à jour infos générales
+    await api.put(`/utilisateurs/${user.id}`, {
+      nom: formData.nom,
+      prenom: formData.prenom,
+      email: formData.email
+    });
+
+    // Étape 2 : changer mot de passe uniquement si présent
+    if (formData.motDePasse) {
+      if (formData.motDePasse !== formData.confirmPassword) {
+        return toast.error("Les mots de passe ne correspondent pas");
+      }
+      await api.put(`/utilisateurs/password/${user.id}`, {
+        newPassword: formData.motDePasse
+      });
     }
-    try {
-      const updated = { ...formData };
-      if (!updated.motDePasse) delete updated.motDePasse;
-      await api.put(`/utilisateurs/${user.id}`, updated);
-      toast.success("Profil mis à jour !");
-      setEditMode(false);
-    } catch (err) {
-      toast.error("Erreur de mise à jour");
-    }
-  };
+
+    toast.success("Profil mis à jour !");
+    setEditMode(false);
+    setFormData({ ...formData, motDePasse: "", confirmPassword: "" });
+  } catch (err) {
+    toast.error("Erreur lors de la mise à jour");
+  }
+};
 
   return (
     <Container className="mt-5">

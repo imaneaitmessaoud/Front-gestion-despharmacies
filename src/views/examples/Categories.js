@@ -25,6 +25,7 @@ const Categories = () => {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({ id: null, nom: "", description: "" });
+  const [alert, setAlert] = useState({ visible: false, type: "", message: "" });
 
   const fetchCategories = async (nom = "") => {
     try {
@@ -78,18 +79,52 @@ const Categories = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Confirmer la suppression ?")) return;
-    try {
-      await api.delete(`/categories/${id}`);
-      fetchCategories();
-    } catch (err) {
+  if (!window.confirm("Confirmer la suppression ?")) return;
+  try {
+    await api.delete(`/categories/${id}`);
+    fetchCategories();
+    setAlert({
+      visible: true,
+      type: "success",
+      message: " Catégorie supprimée avec succès !",
+    });
+    toast.success("Catégorie supprimée !");
+  } catch (err) {
+    if (err.response && err.response.status === 409) {
+      setAlert({
+        visible: true,
+        type: "danger",
+        message: "❌ Suppression impossible : cette catégorie est liée à des médicaments.",
+      });
+      toast.error(err.response.data);
+    } else {
+      setAlert({
+        visible: true,
+        type: "danger",
+        message: "❌  Suppression impossible : cette catégorie est liée à des médicaments.",
+      });
       toast.error("Erreur de suppression");
     }
-  };
+  }
+
+  // Masquer l'alerte après 4 secondes
+  setTimeout(() => {
+    setAlert({ visible: false, type: "", message: "" });
+  }, 4000);
+};
+
 
   return (
     
     <Container style={{ marginTop: "80px", paddingTop: "20px" }} fluid>
+      {alert.visible && (
+  <div className="mb-3">
+    <div className={`alert alert-${alert.type}`} role="alert">
+      {alert.message}
+    </div>
+  </div>
+)}
+
       <Row className="mb-3">
         <Col md="6">
           <Input

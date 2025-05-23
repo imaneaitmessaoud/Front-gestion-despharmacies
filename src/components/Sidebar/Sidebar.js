@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import api from "../../api";
 import { NavLink as NavLinkRRD, Link } from "react-router-dom";
 import { PropTypes } from "prop-types";
+import logoImg from "assets/img/brand/pharmactrl-logo.png";
 import {
   Button,
   Card,
@@ -126,12 +127,16 @@ const Sidebar = (props) => {
         <button className="navbar-toggler" type="button" onClick={toggleCollapse}>
           <span className="navbar-toggler-icon" />
         </button>
-       {logo ? (
-  <NavbarBrand className="pt-0" {...navbarBrandProps}>
-    <img alt="pharmactrl-logo" className="navbar-brand-img" src={require("assets/img/brand/pharmactrl-logo.png")} />
-    <span className="ml-2 font-weight-bold">PharmaCtrl</span>
-  </NavbarBrand>
-) : null}
+      <NavbarBrand className="pt-0" to="/" tag={Link}>
+  <img
+    alt="PharmaCtrl Logo"
+    className="navbar-brand-img"
+    src={logoImg}
+    style={{ height: "40px" }} // ajuste la taille si nécessaire
+  />
+  <span className="ml-2 font-weight-bold">PharmaCtrl</span>
+</NavbarBrand>
+
 
         <Nav className="align-items-center d-md-none">
           <UncontrolledDropdown nav>

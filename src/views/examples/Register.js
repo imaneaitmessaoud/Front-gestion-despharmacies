@@ -1,4 +1,3 @@
-// src/views/examples/Register.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -29,15 +28,14 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.email) {
-      alert("Veuillez renseigner une adresse email.");
-      return;
-    }
 
     try {
+      // 1. Créer l'utilisateur
       await api.post("/utilisateurs", formData);
+
+      // 2. Redirection simple vers /auth/login
       navigate("/auth/login", {
-        state: { successMessage: "Compte créé avec succès. Vous pouvez vous connecter." },
+        state: { successMessage: "Compte créé avec succès. Connectez-vous." },
       });
     } catch (error) {
       if (

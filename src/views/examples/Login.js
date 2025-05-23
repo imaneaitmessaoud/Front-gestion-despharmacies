@@ -13,10 +13,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../api";
 import { Link } from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
+import { Alert } from "reactstrap";
 const Login = () => {
   const navigate = useNavigate();
   const { setUser } = useAuth(); // 🔑 Pour mettre à jour le contexte utilisateur
+const location = useLocation();
+const successMessage = location.state?.successMessage;
 
   const [credentials, setCredentials] = useState({
     email: "",
@@ -60,6 +63,12 @@ const Login = () => {
         </CardHeader>
         <CardBody className="px-lg-5 py-lg-5">
           <Form role="form" onSubmit={handleLogin}>
+            {successMessage && (
+  <Alert color="success" className="text-center">
+    {successMessage}
+  </Alert>
+)}
+
             <FormGroup className="mb-3">
               <Input
                 placeholder="Email"

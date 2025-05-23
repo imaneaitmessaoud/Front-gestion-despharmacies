@@ -12,7 +12,7 @@ import {
   Label,
   Row,
   Col,
-  Spinner
+  Spinner,
 } from "reactstrap";
 import api from "../../api";
 import { toast } from "react-toastify";
@@ -25,26 +25,36 @@ const ModifierVente = () => {
   const [utilisateurId, setUtilisateurId] = useState("");
   const [lignes, setLignes] = useState([]);
   const [utilisateurs, setUtilisateurs] = useState([]);
+  const [medicaments, setMedicaments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) {
+      toast.error("ID de vente introuvable.");
+      navigate("/admin/ventes");
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        const res = await api.get(`/ventes/${id}`);
-        const vente = res.data;
+        const [venteRes, usersRes, medsRes] = await Promise.all([
+          api.get(`/ventes/${id}`),
+          api.get("/utilisateurs"),
+          api.get("/medicaments"),
+        ]);
+
+        const vente = venteRes.data;
         setDateVente(vente.dateVente?.slice(0, 16));
         setUtilisateurId(vente.utilisateur?.id || "");
+        setUtilisateurs(usersRes.data);
+        setMedicaments(medsRes.data);
 
         const lignesConverties = vente.lignesDeVente?.map((l) => ({
-          medicamentId: l.medicament.id,
+          medicamentId: l.medicament?.id,
           quantite: l.quantite,
         })) || [];
 
         setLignes(lignesConverties);
-
-        const utilisateursRes = await api.get("/utilisateurs");
-        console.log("Utilisateurs:", utilisateursRes.data);
-        setUtilisateurs(utilisateursRes.data);
       } catch (error) {
         console.error("Erreur de chargement :", error);
         toast.error("Erreur lors du chargement de la vente.");
@@ -52,8 +62,9 @@ const ModifierVente = () => {
         setLoading(false);
       }
     };
+
     fetchData();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleLigneChange = (index, field, value) => {
     const updated = [...lignes];
@@ -66,21 +77,33 @@ const ModifierVente = () => {
   };
 
   const supprimerLigne = (index) => {
-    const updated = lignes.filter((_, i) => i !== index);
-    setLignes(updated);
+    setLignes(lignes.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Vérification facultative du stock
+    for (const ligne of lignes) {
+      const medoc = medicaments.find((m) => m.id === parseInt(ligne.medicamentId));
+      if (!medoc) {
+        toast.error("Médicament introuvable.");
+        return;
+      }
+      if (parseInt(ligne.quantite) > medoc.quantiteStock) {
+        toast.error(`Stock insuffisant pour ${medoc.nom}`);
+        return;
+      }
+    }
+
     try {
       const dto = {
         dateVente,
-        utilisateurId: utilisateurId || null,
+        utilisateurId: parseInt(utilisateurId),
         lignes: lignes.map((l) => ({
           medicamentId: parseInt(l.medicamentId),
-          quantite: parseInt(l.quantite)
-        }))
+          quantite: parseInt(l.quantite),
+        })),
       };
 
       await api.put(`/ventes/${id}`, dto);
@@ -138,46 +161,57 @@ const ModifierVente = () => {
               </Col>
             </Row>
 
-            {lignes.map((ligne, index) => (
-              <Row key={index}>
-                <Col md={6}>
-                  <FormGroup>
-                    <Label>ID Médicament</Label>
-                    <Input
-                      type="number"
-                      value={ligne.medicamentId}
-                      onChange={(e) =>
-                        handleLigneChange(index, "medicamentId", e.target.value)
-                      }
-                      required
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup>
-                    <Label>Quantité</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={ligne.quantite}
-                      onChange={(e) =>
-                        handleLigneChange(index, "quantite", e.target.value)
-                      }
-                      required
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={2} className="d-flex align-items-end">
-                  <Button
-                    color="danger"
-                    onClick={() => supprimerLigne(index)}
-                    disabled={lignes.length === 1}
-                  >
-                    ✕
-                  </Button>
-                </Col>
-              </Row>
-            ))}
+            {lignes.map((ligne, index) => {
+              const medoc = medicaments.find(m => m.id === parseInt(ligne.medicamentId));
+              return (
+                <Row key={index}>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label>Médicament</Label>
+                      <Input
+                        type="select"
+                        value={ligne.medicamentId}
+                        onChange={(e) => handleLigneChange(index, "medicamentId", e.target.value)}
+                        required
+                      >
+                        <option value="">-- Sélectionner --</option>
+                        {medicaments.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.nom}
+                          </option>
+                        ))}
+                      </Input>
+                      {medoc && (
+                        <small className="text-muted">
+                          Stock actuel : {medoc.quantiteStock}
+                        </small>
+                      )}
+                    </FormGroup>
+                  </Col>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label>Quantité</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={ligne.quantite}
+                        onChange={(e) => handleLigneChange(index, "quantite", e.target.value)}
+                        required
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col md={2} className="d-flex align-items-end">
+                    <Button
+                      color="danger"
+                      onClick={() => supprimerLigne(index)}
+                      disabled={lignes.length === 1}
+                    >
+                      ✕
+                    </Button>
+                  </Col>
+                </Row>
+              );
+            })}
 
             <Button
               color="secondary"
